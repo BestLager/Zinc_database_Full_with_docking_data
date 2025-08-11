@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
         img {
-            max-width: 100px;
+            max-width: 200px;
             height: auto;
         }
     </style>
@@ -36,29 +36,27 @@ $(document).ready(function() {
     Papa.parse("Zinc_database_Full_with_docking_data_updated.csv", {
         download: true,
         header: true,
-        delimiter: ";", // ważne! separator to średnik
+        delimiter: ";", // kluczowe przy średnikach
         complete: function(results) {
             $('#tabela').DataTable({
                 data: results.data,
                 columns: [
-                    { data: 'zincid' },
-                    { data: 'molecular_formula' },
-                    { data: 'binding_energy' },
-                    { data: 'charge' },
+                    { data: 'zincid', defaultContent: '' },
+                    { data: 'molecular_formula', defaultContent: '' },
+                    { data: 'binding_energy', defaultContent: '' },
+                    { data: 'charge', defaultContent: '' },
                     { 
                         data: '2D',
+                        defaultContent: '',
                         render: function(data) {
-                            return '<img src="' + data + '" alt="2D obraz">';
+                            return data ? '<img src="' + data + '" alt="2D obraz">' : '';
                         }
                     },
-                    { data: 'binding_energy AD4' },
-                    { data: 'standard deviation' }
+                    { data: 'binding_energy AD4', defaultContent: '' },
+                    { data: 'standard deviation', defaultContent: '' }
                 ]
             });
         }
     });
 });
 </script>
-
-</body>
-</html>
