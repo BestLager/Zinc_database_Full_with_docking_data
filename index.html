@@ -25,10 +25,12 @@
             max-width: 200px;
             height: auto;
             border-radius: 8px;
-            transition: transform 0.2s ease-in-out;
+            transition: transform 0.3s ease-in-out;
         }
         .img2d:hover {
-            transform: scale(1.2);
+            transform: scale(2.5);
+            z-index: 1000;
+            position: relative;
         }
         thead input {
             width: 100%;
@@ -56,11 +58,11 @@
             <tr>
                 <th><input type="text" placeholder="Szukaj ID"></th>
                 <th><input type="text" placeholder="Szukaj wzoru"></th>
-                <th><input type="text" placeholder="Szukaj energii"></th>
-                <th><input type="text" placeholder="Szukaj ładunku"></th>
-                <th></th> <!-- brak filtra dla obrazów -->
-                <th><input type="text" placeholder="Szukaj AD4"></th>
-                <th><input type="text" placeholder="Szukaj SD"></th>
+                <th><input type="text" placeholder="np. > -5"></th>
+                <th><input type="text" placeholder="np. = 0"></th>
+                <th></th>
+                <th><input type="text" placeholder="np. < -3"></th>
+                <th><input type="text" placeholder="np. 0,2"></th>
             </tr>
         </thead>
     </table>
@@ -106,11 +108,31 @@ $(document).ready(function() {
             // Filtry w nagłówkach
             $('#tabela thead tr:eq(1) th').each(function (i) {
                 $('input', this).on('keyup change', function () {
-                    if (table.column(i).search() !== this.value) {
-                        table
-                            .column(i)
-                            .search(this.value)
-                            .draw();
+                    var val = this.value.trim();
+
+                    // Jeśli wpisano warunek liczbowy
+                    if (val.match(/^([<>]=?|=)\s*-?\d+[.,]?\d*$/)) {
+                        var operator = val.match(/^([<>]=?|=)/)[0];
+                        var number = parseFloat(val.replace(/^([<>]=?|=)\s*/, '').replace(',', '.'));
+
+                        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                            var cellValue = parseFloat((data[i] || "").replace(',', '.'));
+                            if (isNaN(cellValue)) return false;
+                            if (operator === '>') return cellValue > number;
+                            if (operator === '>=') return cellValue >= number;
+                            if (operator === '<') return cellValue < number;
+                            if (operator === '<=') return cellValue <= number;
+                            if (operator === '=') return cellValue === number;
+                            return true;
+                        });
+                        table.draw();
+                        $.fn.dataTable.ext.search.pop();
+                    } 
+                    // Normalne wyszukiwanie tekstowe
+                    else {
+                        if (table.column(i).search() !== val) {
+                            table.column(i).search(val).draw();
+                        }
                     }
                 });
             });
@@ -121,4 +143,7 @@ $(document).ready(function() {
 
 </body>
 </html>
+</body>
+</html>
+
 
